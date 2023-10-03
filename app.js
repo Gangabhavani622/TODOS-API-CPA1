@@ -2,6 +2,7 @@ const express=require('express');
 const {open}=require('sqlite');
 const sqlite3=require('sqlite3');
 const path=require('path');
+const {format} =require('date-fns');
 
 const app=express()
 
@@ -82,11 +83,19 @@ app.get('/todos/:todoId/', async(request, response) => {
 // Based  on date API
 
 app.get('/agenda/', async(request,response)=>{
-    const{date=''}=request.query
-
-    const getTodoBasedOnDate=`SELECT * FROM todo WHERE due_date LIKE '%${date}%';`;
+    const{date=''}=request.query;
+   let dateObject=new Date(date)
+   
+    if (isNaN(dateObject.getTime())) {
+        response.status(400);
+        response.send("Invalid date");
+} else{
+     dateObject=format(dateObject, 'yyyy-MM-dd');
+   
+    const getTodoBasedOnDate=`SELECT * FROM todo WHERE due_date LIKE '%${dateObject}%';`;
     const responseData=await db.all(getTodoBasedOnDate)
     response.send(responseData);
+    }
 })
 
 
