@@ -34,6 +34,19 @@ const priorityValues=["HIGH", "MEDIUM", 'LOW'];
 const categoryValues=["WORK", "HOME", "LEARNING"];
 const statusValues=['TO DO', 'IN PROGRESS', 'DONE'];
 
+const formatData=(data)=>{
+      const changeDataFormat=data.map(eachItem=>({
+    
+        "id": eachItem.id,
+        "todo": eachItem.todo,
+        "priority": eachItem.priority,
+        "status": eachItem.status,
+        "category": eachItem.category,
+        "dueDate": eachItem.due_date
+   }))
+   return changeDataFormat
+}
+
 //  GET API
 
 app.get('/todos/',async(request,response)=>{
@@ -67,7 +80,8 @@ app.get('/todos/',async(request,response)=>{
     `;
     const todosResponse=await db.all(getTodosQuery);
    // console.log(todosResponse);
-    response.send(todosResponse);
+     const changeDataFormat=formatData(todosResponse)
+    response.send(changeDataFormat);
 });
 
 //GET TODO API
@@ -76,7 +90,15 @@ app.get('/todos/:todoId/', async(request, response) => {
   const{todoId}=request.params;
   const getTodoQuery=`SELECT * FROM todo WHERE id LIKE ${todoId};`;
   const getTodoResponse=await db.get(getTodoQuery);
-  response.send(getTodoResponse);
+ const formattedData={
+        "id": getTodoResponse.id,
+        "todo": getTodoResponse.todo,
+        "priority": getTodoResponse.priority,
+        "status": getTodoResponse.status,
+        "category": getTodoResponse.category,
+        "dueDate": getTodoResponse.due_date
+   }
+  response.send(formattedData);
 })
 
 
@@ -94,7 +116,8 @@ app.get('/agenda/', async(request,response)=>{
    
     const getTodoBasedOnDate=`SELECT * FROM todo WHERE due_date LIKE '%${dateObject}%';`;
     const responseData=await db.all(getTodoBasedOnDate)
-    response.send(responseData);
+    const formattedData=formatData(responseData)
+     response.send(formattedData);
     }
 })
 
